@@ -1,0 +1,4 @@
+Source,Target,Relationship,Description
+TopLevelOne,LowLevelOne,depends on,Java binary depends on Java library
+TopLevelOne,Main.java,compiles,Binary compiles this source file
+LowLevelOne,LowOneMain.java,compiles,Library compiles this source file

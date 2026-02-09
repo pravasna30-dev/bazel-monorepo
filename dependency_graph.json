@@ -1,0 +1,67 @@
+{
+  "title": "Monorepo Dependency Graph",
+  "description": "Dependency relationships in the Bazel monorepo",
+  "nodes": [
+    {
+      "id": "top-level-1",
+      "label": "TopLevelOne",
+      "type": "java_binary",
+      "package": "//top-level-1",
+      "description": "Main application binary that depends on low-level library",
+      "color": "#e1f5ff"
+    },
+    {
+      "id": "low-level-1",
+      "label": "LowLevelOne",
+      "type": "java_library",
+      "package": "//low-level-1",
+      "description": "Low-level library providing core functionality",
+      "color": "#fff4e1"
+    },
+    {
+      "id": "main-java",
+      "label": "Main.java",
+      "type": "source_file",
+      "path": "top-level-1/src/main/java/com/acme/arc/dep/test/Main.java",
+      "description": "Entry point for the application",
+      "color": "#f0f0f0"
+    },
+    {
+      "id": "low-one-main-java",
+      "label": "LowOneMain.java",
+      "type": "source_file",
+      "path": "low-level-1/src/main/java/com/acme/arc/dep/test/LowOneMain.java",
+      "description": "Low-level library implementation",
+      "color": "#f0f0f0"
+    }
+  ],
+  "edges": [
+    {
+      "from": "top-level-1",
+      "to": "low-level-1",
+      "relationship": "depends_on",
+      "label": "depends on",
+      "description": "Binary depends on library for functionality",
+      "color": "#2196F3",
+      "weight": 3
+    },
+    {
+      "from": "top-level-1",
+      "to": "main-java",
+      "relationship": "compiles",
+      "label": "compiles",
+      "description": "Binary compiles this source file",
+      "color": "#666",
+      "weight": 1
+    },
+    {
+      "from": "low-level-1",
+      "to": "low-one-main-java",
+      "relationship": "compiles",
+      "label": "compiles",
+      "description": "Library compiles this source file",
+      "color": "#666",
+      "weight": 1
+    }
+  ]
+}

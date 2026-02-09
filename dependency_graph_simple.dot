@@ -1,0 +1,21 @@
+digraph dependencies {
+  rankdir=TB;
+  node [shape=box, style=filled];
+
+  // Project targets
+  "top-level-1:TopLevelOne" [fillcolor="#e1f5ff", label="TopLevelOne\n(java_binary)"];
+  "low-level-1:LowLevelOne" [fillcolor="#fff4e1", label="LowLevelOne\n(java_library)"];
+
+  // Source files
+  "Main.java" [fillcolor="#f0f0f0", shape=note, label="Main.java\n(top-level)"];
+  "LowOneMain.java" [fillcolor="#f0f0f0", shape=note, label="LowOneMain.java\n(low-level)"];
+
+  // Dependencies
+  "top-level-1:TopLevelOne" -> "low-level-1:LowLevelOne" [label="depends on", color="#2196F3", penwidth=2];
+  "top-level-1:TopLevelOne" -> "Main.java" [label="compiles", style=dashed];
+  "low-level-1:LowLevelOne" -> "LowOneMain.java" [label="compiles", style=dashed];
+
+  // Labels
+  labelloc="t";
+  label="Monorepo Dependency Graph\n\nTopLevelOne binary depends on LowLevelOne library";
+}

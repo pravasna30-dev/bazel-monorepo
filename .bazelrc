@@ -1,0 +1,6 @@
+# Use local Java toolchain (Apple JDK)
+# Note: Currently using Apple JDK 21. To upgrade to Java 25, see JAVA_UPGRADE.md
+build --java_language_version=21
+build --java_runtime_version=local_jdk
+build --tool_java_runtime_version=local_jdk
+

@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bazel build:*)",
+      "Bash(bazel run:*)",
+      "Bash(bazel query:*)",
+      "Bash(bazel info:*)",
+      "Bash(bazel test:*)",
+      "Bash(bazel coverage:*)",
+      "Bash(ls:*)",
+      "Bash(git add:*)",
+      "Bash(git restore:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(for file in ./low-level-1/BUILD ./low-level-1/src/test/java/com/apple/store/dpe/test/LowOneMainTest.java ./low-level-1/src/main/java/com/apple/store/dpe/test/LowOneMain.java ./DEPENDENCY_GRAPHS.md ./JUNIT5_SETUP.md ./WORKSPACE ./.claude/README.md ./BUILD_DOCS_SUMMARY.md ./README.md ./BUILD_GUIDE.md ./top-level-1/BUILD ./top-level-1/src/test/java/com/apple/store/dpe/test/MainTest.java ./top-level-1/src/main/java/com/apple/store/dpe/test/Main.java ./.gitignore ./CONTRIBUTING.md ./DOCS.md ./BUILD ./QUICK_REFERENCE.md ./.bazelrc ./CLAUDE.md)",
+      "Bash(do)",
+      "Bash(if [ -f \"$file\" ])",
+      "Bash([ -s \"$file\" ])",
+      "Bash(then)",
+      "Bash(for file in ./low-level-1/BUILD ./WORKSPACE ./top-level-1/BUILD ./BUILD)",
+      "Bash(if ! tail -c 1 \"$file\")",
+      "Bash(find:*)",
+      "Bash(test:*)",
+      "Bash(bazel clean:*)",
+      "Bash(chmod:*)",
+      "Bash(/usr/libexec/java_home:*)",
+      "WebSearch",
+      "WebFetch(domain:blog.bazel.build)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:bazel.build)",
+      "WebFetch(domain:registry.bazel.build)",
+      "Bash(command -v:*)"
+    ]
+  }
+}

@@ -1,0 +1,222 @@
+skills:
+  # Build Skills
+  build-all:
+    description: "Build all targets in the monorepo"
+    category: "build"
+    execution:
+      type: command
+      command: "bazel build //..."
+
+  build-lib:
+    description: "Build the low-level-1 library"
+    category: "build"
+    execution:
+      type: command
+      command: "bazel build //low-level-1:LowLevelOne"
+
+  build-app:
+    description: "Build the top-level-1 binary"
+    category: "build"
+    execution:
+      type: command
+      command: "bazel build //top-level-1:TopLevelOne"
+
+  clean:
+    description: "Clean all Bazel build artifacts"
+    category: "build"
+    execution:
+      type: command
+      command: "bazel clean"
+
+  clean-all:
+    description: "Deep clean including external dependencies"
+    category: "build"
+    execution:
+      type: command
+      command: "bazel clean --expunge"
+
+  # Run Skills
+  run:
+    description: "Run the top-level-1 application"
+    category: "run"
+    execution:
+      type: command
+      command: "bazel run //top-level-1:TopLevelOne"
+
+  # Test Skills
+  test-all:
+    description: "Run all tests in the monorepo"
+    category: "test"
+    execution:
+      type: command
+      command: "bazel test //..."
+
+  test-lib:
+    description: "Run tests for low-level-1 library"
+    category: "test"
+    execution:
+      type: command
+      command: "bazel test //low-level-1/..."
+
+  test-app:
+    description: "Run tests for top-level-1 application"
+    category: "test"
+    execution:
+      type: command
+      command: "bazel test //top-level-1/..."
+
+  # Dependency Skills
+  show-deps:
+    description: "Generate and display dependency graph"
+    category: "dependencies"
+    execution:
+      type: command
+      command: |
+        bazel query --output=graph 'deps(//...)' > dependency_graph.dot && \
+        dot -Tpng dependency_graph.dot -o dependency_graph.png && \
+        echo "Dependency graph generated: dependency_graph.png" && \
+        open dependency_graph.png || echo "Install graphviz: brew install graphviz"
+
+  analyze-deps:
+    description: "Analyze dependency structure"
+    category: "dependencies"
+    parameters:
+      - name: target
+        type: string
+        description: "Target to analyze (e.g., //top-level-1:TopLevelOne)"
+        optional: true
+    execution:
+      type: command
+      command: |
+        if [ -n "{{target}}" ]; then
+          bazel query 'deps({{target}})' --output=label
+        else
+          bazel query 'deps(//...)' --output=label
+        fi
+
+  deps-graph:
+    description: "Generate simple dependency graph visualization"
+    category: "dependencies"
+    execution:
+      type: command
+      command: |
+        if [ -f "dependency_graph_simple.dot" ]; then
+          dot -Tpng dependency_graph_simple.dot -o dependency_graph.png && \
+          dot -Tsvg dependency_graph_simple.dot -o dependency_graph.svg && \
+          echo "Generated dependency_graph.png and dependency_graph.svg"
+        else
+          echo "dependency_graph_simple.dot not found"
+          exit 1
+        fi
+
+  # Query Skills
+  query-targets:
+    description: "List all targets in the workspace"
+    category: "query"
+    execution:
+      type: command
+      command: "bazel query //..."
+
+  query-tests:
+    description: "List all test targets"
+    category: "query"
+    execution:
+      type: command
+      command: "bazel query 'tests(//...)'"
+
+  query-libs:
+    description: "List all library targets"
+    category: "query"
+    execution:
+      type: command
+      command: "bazel query 'kind(java_library, //...)'"
+
+  query-bins:
+    description: "List all binary targets"
+    category: "query"
+    execution:
+      type: command
+      command: "bazel query 'kind(java_binary, //...)'"
+
+  # Workspace Skills
+  info:
+    description: "Show Bazel workspace information"
+    category: "workspace"
+    execution:
+      type: command
+      command: "bazel info"
+
+  version:
+    description: "Show Bazel version"
+    category: "workspace"
+    execution:
+      type: command
+      command: "bazel version"
+
+  workspace-status:
+    description: "Show workspace status and configuration"
+    category: "workspace"
+    execution:
+      type: command
+      command: |
+        echo "=== Bazel Version ===" && \
+        bazel version && \
+        echo "" && \
+        echo "=== Workspace Info ===" && \
+        bazel info && \
+        echo "" && \
+        echo "=== Available Targets ===" && \
+        bazel query //...
+
+  # Code Quality Skills
+  format-java:
+    description: "Format all Java source files (requires google-java-format)"
+    category: "quality"
+    execution:
+      type: command
+      command: |
+        if command -v google-java-format >/dev/null 2>&1; then
+          find . -name "*.java" -not -path "*/bazel-*" -exec google-java-format -i {} +
+          echo "Java files formatted"
+        else
+          echo "google-java-format not found. Install: brew install google-java-format"
+          exit 1
+        fi
+
+  # Build Cache Skills
+  cache-stats:
+    description: "Show build cache statistics"
+    category: "cache"
+    execution:
+      type: command
+      command: "bazel info | grep -E '(execution_root|output_base|cache)'"
+
+  # Development Skills
+  rebuild:
+    description: "Clean and rebuild all targets"
+    category: "build"
+    execution:
+      type: command
+      command: "bazel clean && bazel build //..."
+
+  quick-check:
+    description: "Quick build and run to verify everything works"
+    category: "workflow"
+    execution:
+      type: command
+      command: |
+        echo "Building all targets..." && \
+        bazel build //... && \
+        echo "" && \
+        echo "Running application..." && \
+        bazel run //top-level-1:TopLevelOne
+
+  # Documentation Skills
+  generate-build-docs:
+    description: "Generate documentation about BUILD files"
+    category: "docs"
+    execution:
+      type: command
+      command: |
+        echo "=== BUILD File Structure ===" && \
+        find . -name "BUILD" -not -path "*/bazel-*" -exec echo {} \; -exec cat {} \; -exec echo "" \;

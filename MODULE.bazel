@@ -1,0 +1,52 @@
+module(
+    name = "composite-monorepo",
+    version = "1.0.0",
+)
+
+# rules_java is required for java_library, java_binary, java_test in Bazel 9
+bazel_dep(name = "rules_java", version = "9.3.0")
+
+# JUnit 5 dependencies (migrated from WORKSPACE http_jar calls)
+http_jar = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_jar")
+
+# JUnit Platform Console Standalone - includes everything needed to run JUnit 5 tests
+http_jar(
+    name = "junit_platform_console_standalone",
+    url = "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.1/junit-platform-console-standalone-1.10.1.jar",
+)
+
+# Individual JUnit 5 JARs (for custom configurations)
+http_jar(
+    name = "junit_jupiter_api",
+    url = "https://repo1.maven.org/maven2/org/junit/jupiter/junit-jupiter-api/5.10.1/junit-jupiter-api-5.10.1.jar",
+)
+
+http_jar(
+    name = "junit_jupiter_engine",
+    url = "https://repo1.maven.org/maven2/org/junit/jupiter/junit-jupiter-engine/5.10.1/junit-jupiter-engine-5.10.1.jar",
+)
+
+http_jar(
+    name = "junit_platform_commons",
+    url = "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-commons/1.10.1/junit-platform-commons-1.10.1.jar",
+)
+
+http_jar(
+    name = "junit_platform_engine",
+    url = "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-engine/1.10.1/junit-platform-engine-1.10.1.jar",
+)
+
+http_jar(
+    name = "junit_platform_launcher",
+    url = "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-launcher/1.10.1/junit-platform-launcher-1.10.1.jar",
+)
+
+http_jar(
+    name = "opentest4j",
+    url = "https://repo1.maven.org/maven2/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar",
+)
+
+http_jar(
+    name = "apiguardian",
+    url = "https://repo1.maven.org/maven2/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar",
+)

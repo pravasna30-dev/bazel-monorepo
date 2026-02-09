@@ -1,0 +1,82 @@
+# Bazel build outputs
+bazel-*
+.bazel/
+.bazelrc.user
+
+# Bazel cache and temporary files
+.bazel_cache/
+.bazelversion.lock
+
+# Coverage reports
+coverage_html/
+*.gcov
+*.gcda
+*.gcno
+_coverage/
+
+# SonarQube
+.scannerwork/
+.sonar/
+sonar-project.properties.bak
+
+# Java compiled files
+*.class
+*.jar
+*.war
+*.ear
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Maven (if used)
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+dependency-reduced-pom.xml
+
+# Gradle (if used)
+.gradle/
+build/
+
+# Python (if mixed with Python)
+__pycache__/
+*.py[cod]
+*.so
+.Python
+*.egg-info/
+
+# Node (if mixed with Node)
+node_modules/
+npm-debug.log*
+
+# macOS
+*.dSYM/
+
