@@ -168,7 +168,7 @@ All production code is covered by tests. There are:
 - **Output Capture**: Custom `ByteArrayOutputStream` redirection
 
 ### Build System
-- **Tool**: Bazel 7.4.1
+- **Tool**: Bazel 9.0.0
 - **Test Configuration**: Custom `java_test` with JUnit Platform Console
 
 ### Test Execution

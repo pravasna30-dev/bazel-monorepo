@@ -84,7 +84,7 @@ open coverage_html/index.html
 ### Strengths ✅
 
 1. **Build Configuration** (10/10)
-   - Pinned Bazel version (7.4.1)
+   - Pinned Bazel version (9.0.0)
    - Clean .bazelrc configuration
    - Proper Java 21 setup
 
@@ -313,7 +313,7 @@ bazel test //...
 
 ### Build Reproducibility
 
-- ✅ Pinned Bazel version (7.4.1)
+- ✅ Pinned Bazel version (9.0.0)
 - ✅ Explicit Java version (21)
 - ⚠️ Missing dependency checksums (affects reproducibility)
 
@@ -613,5 +613,5 @@ bazel clean
 
 **Generated**: 2026-01-21
 **Repository**: /Users/pv/tmp/bazel/monorepo
-**Bazel Version**: 7.4.1
+**Bazel Version**: 9.0.0
 **Java Version**: 21

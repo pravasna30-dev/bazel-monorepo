@@ -24,7 +24,7 @@ Complete guide for building, testing, and working with this Bazel monorepo.
 
 | Tool | Version | Installation |
 |------|---------|--------------|
-| **Bazel** | 7.4.1 (locked) | [bazel.build](https://bazel.build/install) |
+| **Bazel** | 9.0.0 (locked) | [bazel.build](https://bazel.build/install) |
 | **Java JDK** | 21+ | [OpenJDK](https://openjdk.org/) or `brew install openjdk@21` |
 
 ### Verification
@@ -498,9 +498,9 @@ jobs:
 
       - name: Setup Bazel
         run: |
-          wget https://github.com/bazelbuild/bazel/releases/download/7.4.1/bazel-7.4.1-installer-linux-x86_64.sh
-          chmod +x bazel-7.4.1-installer-linux-x86_64.sh
-          ./bazel-7.4.1-installer-linux-x86_64.sh --user
+          wget https://github.com/bazelbuild/bazel/releases/download/9.0.0/bazel-9.0.0-installer-linux-x86_64.sh
+          chmod +x bazel-9.0.0-installer-linux-x86_64.sh
+          ./bazel-9.0.0-installer-linux-x86_64.sh --user
           export PATH="$PATH:$HOME/bin"
 
       - name: Build
@@ -537,9 +537,9 @@ FROM eclipse-temurin:21-jdk
 
 # Install Bazel
 RUN apt-get update && apt-get install -y wget
-RUN wget https://github.com/bazelbuild/bazel/releases/download/7.4.1/bazel-7.4.1-installer-linux-x86_64.sh
-RUN chmod +x bazel-7.4.1-installer-linux-x86_64.sh
-RUN ./bazel-7.4.1-installer-linux-x86_64.sh
+RUN wget https://github.com/bazelbuild/bazel/releases/download/9.0.0/bazel-9.0.0-installer-linux-x86_64.sh
+RUN chmod +x bazel-9.0.0-installer-linux-x86_64.sh
+RUN ./bazel-9.0.0-installer-linux-x86_64.sh
 
 # Copy workspace
 WORKDIR /workspace
@@ -680,7 +680,7 @@ If migrating from Maven or Gradle:
 
 | File | Purpose |
 |------|---------|
-| `WORKSPACE` | Workspace definition and external deps |
+| `MODULE.bazel` | Bzlmod configuration and external deps |
 | `BUILD` | Build rules and target definitions |
 | `.bazelrc` | Bazel configuration options |
 | `.bazelversion` | Bazel version lock |
@@ -711,6 +711,6 @@ If migrating from Maven or Gradle:
 
 **Document Version:** 1.0
 **Last Updated:** 2026-01-21
-**Bazel Version:** 7.4.1
+**Bazel Version:** 9.0.0
 **Java Version:** 21
 

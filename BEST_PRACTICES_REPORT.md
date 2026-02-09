@@ -17,7 +17,7 @@ This monorepo demonstrates **good foundational practices** for a Bazel-based Jav
 ## ✅ Strengths
 
 ### 1. Build System & Configuration
-- **Bazel version pinned** (`.bazelversion`: 7.4.1) ensures reproducible builds
+- **Bazel version pinned** (`.bazelversion`: 9.0.0) ensures reproducible builds
 - **Clean module separation**: Library (`low-level-1`) and binary (`top-level-1`) clearly separated
 - **Proper visibility declarations**: `visibility = ["//visibility:public"]` correctly used
 - **Java 21 configured**: Modern Java version specified in `.bazelrc`

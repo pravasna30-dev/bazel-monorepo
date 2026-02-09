@@ -14,6 +14,7 @@ java_test(
     use_testrunner = False,
     main_class = "org.junit.platform.console.ConsoleLauncher",
     args = [
+        "execute",
         "--select-class",
         "com.acme.arc.dep.test.LowOneMainTest",
     ],
@@ -22,9 +23,3 @@ java_test(
         "@junit_platform_console_standalone//jar",
     ],
 )
-
-# java_export(
-#   name = "LowLevelOne_lib",
-#   maven_coordinates = "com.acme.arc.dep.test:low-level-1:0.0.1",
-#   srcs = glob(["*.java"]),
-# )

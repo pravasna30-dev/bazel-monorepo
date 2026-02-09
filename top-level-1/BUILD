@@ -22,6 +22,7 @@ java_test(
     use_testrunner = False,
     main_class = "org.junit.platform.console.ConsoleLauncher",
     args = [
+        "execute",
         "--select-class",
         "com.acme.arc.dep.test.MainTest",
     ],

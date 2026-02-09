@@ -12,7 +12,7 @@ Guidelines for contributing to this Bazel monorepo.
 2. **Set up your environment:**
    ```bash
    # Verify prerequisites
-   bazel version  # Should be 7.4.1
+   bazel version  # Should be 9.0.0
    java -version  # Should be 21+
 
    # Build and test

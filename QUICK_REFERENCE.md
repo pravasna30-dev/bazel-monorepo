@@ -130,9 +130,9 @@ bazel build //... --javacopt="-g" --javacopt="-parameters"
 
 ```
 monorepo/
-├── WORKSPACE              # Workspace definition
+├── MODULE.bazel           # Bzlmod dependency configuration
 ├── .bazelrc               # Build configuration
-├── .bazelversion          # Bazel version (7.4.1)
+├── .bazelversion          # Bazel version (9.0.0)
 ├── BUILD                  # Root BUILD file
 ├── low-level-1/           # Library module
 │   ├── BUILD
@@ -224,15 +224,16 @@ bazel build //... --jobs=8
 
 Current configuration:
 ```
-common --noenable_bzlmod
 build --java_language_version=21
+build --java_runtime_version=local_jdk
+build --tool_java_runtime_version=local_jdk
 ```
 
 ### .bazelversion
 
 Locked version:
 ```
-7.4.1
+9.0.0
 ```
 
 ### WORKSPACE
@@ -306,7 +307,7 @@ export JAVA_HOME=/path/to/jdk21
 
 | Component | Version |
 |-----------|---------|
-| Bazel | 7.4.1 |
+| Bazel | 9.0.0 |
 | Java | 21 |
 | Workspace | composite_monorepo |
 

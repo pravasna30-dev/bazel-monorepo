@@ -20,7 +20,7 @@ This monorepo contains two Bazel projects merged together:
 monorepo/
 ├── WORKSPACE              # Bazel workspace configuration
 ├── .bazelrc               # Bazel configuration options
-├── .bazelversion          # Specifies Bazel version (7.4.1)
+├── .bazelversion          # Specifies Bazel version (9.0.0)
 ├── BUILD                  # Root BUILD file
 ├── low-level-1/
 │   ├── BUILD              # Defines LowLevelOne java_library
@@ -38,7 +38,7 @@ monorepo/
 
 ### Prerequisites
 
-- **Bazel** 7.4.1 (locked via `.bazelversion`)
+- **Bazel** 9.0.0 (locked via `.bazelversion`)
 - **Java JDK** 21+
 
 ### Build and Run
@@ -99,9 +99,9 @@ See [DEPENDENCY_GRAPHS.md](DEPENDENCY_GRAPHS.md) for visual diagrams in multiple
 
 | File | Purpose |
 |------|---------|
-| **WORKSPACE** | Workspace definition (no external dependencies) |
-| **.bazelrc** | Java 21, disables Bzlmod |
-| **.bazelversion** | Locks Bazel to 7.4.1 |
+| **MODULE.bazel** | Bzlmod configuration with rules_java and JUnit 5 deps |
+| **.bazelrc** | Java 21, local JDK configuration |
+| **.bazelversion** | Locks Bazel to 9.0.0 |
 | **BUILD** | Root build file |
 
 ## Adding New Modules

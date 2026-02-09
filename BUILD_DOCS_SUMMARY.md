@@ -333,7 +333,7 @@ Comprehensive build documentation has been generated covering all aspects of bui
 ---
 
 **Generated:** 2026-01-21
-**Bazel Version:** 7.4.1
+**Bazel Version:** 9.0.0
 **Java Version:** 21
 **Documentation Version:** 1.0
 

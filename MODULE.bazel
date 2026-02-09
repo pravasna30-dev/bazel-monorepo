@@ -13,40 +13,48 @@ http_jar = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_j
 http_jar(
     name = "junit_platform_console_standalone",
     url = "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.1/junit-platform-console-standalone-1.10.1.jar",
+    sha256 = "b42eaa53d13576d17db5fb8b280722a6ae9e36daf95f4262bc6e96d4cb20725f",
 )
 
 # Individual JUnit 5 JARs (for custom configurations)
 http_jar(
     name = "junit_jupiter_api",
     url = "https://repo1.maven.org/maven2/org/junit/jupiter/junit-jupiter-api/5.10.1/junit-jupiter-api-5.10.1.jar",
+    sha256 = "60d5c398c32dc7039b99282514ad6064061d8417cf959a1f6bd2038cc907c913",
 )
 
 http_jar(
     name = "junit_jupiter_engine",
     url = "https://repo1.maven.org/maven2/org/junit/jupiter/junit-jupiter-engine/5.10.1/junit-jupiter-engine-5.10.1.jar",
+    sha256 = "02930dfe495f93fe70b26550ace3a28f7e1b900c84426c2e4626ce020c7282d6",
 )
 
 http_jar(
     name = "junit_platform_commons",
     url = "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-commons/1.10.1/junit-platform-commons-1.10.1.jar",
+    sha256 = "7d9855ee3f3f71f015eb1479559bf923783243c24fbfbd8b29bed8e8099b5672",
 )
 
 http_jar(
     name = "junit_platform_engine",
     url = "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-engine/1.10.1/junit-platform-engine-1.10.1.jar",
+    sha256 = "baa48e470d6dee7369a0a8820c51da89c1463279eda6e13a304d11f45922c760",
 )
 
 http_jar(
     name = "junit_platform_launcher",
     url = "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-launcher/1.10.1/junit-platform-launcher-1.10.1.jar",
+    sha256 = "ded414c504e88d02270331071969084e1b2fd9bcf8443f35d44da2c6e3301bc2",
 )
 
 http_jar(
     name = "opentest4j",
     url = "https://repo1.maven.org/maven2/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar",
+    sha256 = "48e2df636cab6563ced64dcdff8abb2355627cb236ef0bf37598682ddf742f1b",
 )
 
 http_jar(
     name = "apiguardian",
     url = "https://repo1.maven.org/maven2/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar",
+    sha256 = "b509448ac506d607319f182537f0b35d71007582ec741832a1f111e5b5b70b38",
 )

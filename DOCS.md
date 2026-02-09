@@ -176,8 +176,9 @@ workspace(name = "composite_monorepo")
 **Location:** Root directory
 **Contents:**
 ```
-common --noenable_bzlmod
 build --java_language_version=21
+build --java_runtime_version=local_jdk
+build --tool_java_runtime_version=local_jdk
 ```
 
 ---
@@ -187,7 +188,7 @@ build --java_language_version=21
 **Location:** Root directory
 **Contents:**
 ```
-7.4.1
+9.0.0
 ```
 
 ---
