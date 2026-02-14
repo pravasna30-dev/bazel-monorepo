@@ -1,34 +1,36 @@
-load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_test")
+load("@contrib_rules_jvm//java:defs.bzl", "java_test_suite")
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+
+# gazelle:java_module_granularity module
 
 java_library(
-    name = "TopLevelOneLib",
-    srcs = glob(["src/main/java/com/acme/arc/dep/test/*.java"]),
+    name = "top-level-1",
+    srcs = ["src/main/java/com/acme/arc/dep/test/Main.java"],
+    visibility = ["//:__subpackages__"],
     deps = [
-        "//low-level-1:LowLevelOne",
+        "//low-level-1",  # keep
     ],
 )
 
 java_binary(
-    name = "TopLevelOne",
+    name = "Main",
     main_class = "com.acme.arc.dep.test.Main",
-    runtime_deps = [":TopLevelOneLib"],
+    visibility = ["//visibility:public"],
+    runtime_deps = [":top-level-1"],
 )
 
-java_test(
-    name = "TopLevelOneTest",
-    srcs = glob(["src/test/java/com/acme/arc/dep/test/*.java"]),
-    test_class = "com.acme.arc.dep.test.MainTest",
-    size = "small",
-    use_testrunner = False,
-    main_class = "org.junit.platform.console.ConsoleLauncher",
-    args = [
-        "execute",
-        "--select-class",
-        "com.acme.arc.dep.test.MainTest",
+java_test_suite(
+    name = "top-level-1-tests",
+    srcs = ["src/test/java/com/acme/arc/dep/test/MainTest.java"],
+    runner = "junit5",
+    runtime_deps = [
+        "@maven//:org_junit_jupiter_junit_jupiter_engine",
+        "@maven//:org_junit_platform_junit_platform_launcher",
+        "@maven//:org_junit_platform_junit_platform_reporting",
     ],
     deps = [
-        ":TopLevelOneLib",
-        "//low-level-1:LowLevelOne",
-        "@junit_platform_console_standalone//jar",
+        ":top-level-1",  # keep
+        "//low-level-1",  # keep
+        "@maven//:org_junit_jupiter_junit_jupiter_api",
     ],
 )
