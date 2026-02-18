@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Composite Build Validation | Bazel Monorepo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg-card: #161b22;
+      --bg-code: #1c2128;
+      --border: #30363d;
+      --border-active: #58a6ff;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --text-dim: #6e7681;
+      --accent: #58a6ff;
+      --accent-subtle: #1f6feb33;
+      --green: #3fb950;
+      --green-subtle: #23863633;
+      --red: #f85149;
+      --red-subtle: #f8514933;
+      --orange: #d29922;
+      --orange-subtle: #d2992233;
+      --purple: #bc8cff;
+      --purple-subtle: #bc8cff22;
+      --gradient-start: #58a6ff;
+      --gradient-end: #bc8cff;
+      --tab-hover: #21262d;
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .hero {
+      background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1a1e2e 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 2rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(ellipse at 30% 50%, var(--accent-subtle) 0%, transparent 50%),
+                  radial-gradient(ellipse at 70% 50%, var(--purple-subtle) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .hero-content { position: relative; max-width: 800px; margin: 0 auto; }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 1rem;
+      background: var(--accent-subtle);
+      border: 1px solid var(--border-active);
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--accent);
+      margin-bottom: 1.25rem;
+      letter-spacing: 0.02em;
+    }
+
+    .hero h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(135deg, var(--text) 0%, var(--text-muted) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .hero-command {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.6rem 1.25rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--green);
+    }
+
+    .hero-command .prompt { color: var(--text-dim); user-select: none; }
+
+    /* ── Tabs ── */
+    .tabs-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      margin-top: 0;
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 100;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .tab-bar::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      padding: 0.9rem 1.4rem;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      position: relative;
+    }
+
+    .tab-btn:hover { color: var(--text); background: var(--tab-hover); }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .tab-btn .tab-icon {
+      display: inline-block;
+      margin-right: 0.45rem;
+      font-size: 1rem;
+      vertical-align: -1px;
+    }
+
+    /* ── Tab Content ── */
+    .tab-panel {
+      display: none;
+      padding: 2.5rem 0 4rem;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tab-panel.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Typography ── */
+    .tab-panel h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.02em;
+    }
+
+    .tab-panel h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-top: 2rem;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+
+    .tab-panel h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-top: 1.5rem;
+      margin-bottom: 0.4rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .tab-panel p { color: var(--text-muted); margin-bottom: 1rem; max-width: 75ch; }
+    .tab-panel strong { color: var(--text); font-weight: 600; }
+
+    .tab-panel ul, .tab-panel ol {
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+    }
+
+    .tab-panel li { margin-bottom: 0.4rem; }
+    .tab-panel li code { color: var(--accent); }
+
+    /* ── Code blocks ── */
+    .tab-panel pre {
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      overflow-x: auto;
+      margin-bottom: 1.25rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      line-height: 1.65;
+    }
+
+    .tab-panel code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85em;
+    }
+
+    .tab-panel p code, .tab-panel li code, .tab-panel td code {
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.15em 0.4em;
+      font-size: 0.82em;
+    }
+
+    /* ── Cards ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      transition: border-color 0.2s;
+    }
+
+    .card:hover { border-color: var(--border-active); }
+
+    .card-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius);
+      font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .card-icon.blue { background: var(--accent-subtle); }
+    .card-icon.green { background: var(--green-subtle); }
+    .card-icon.orange { background: var(--orange-subtle); }
+    .card-icon.purple { background: var(--purple-subtle); }
+    .card-icon.red { background: var(--red-subtle); }
+
+    .card h3 { font-size: 1rem; margin-top: 0; margin-bottom: 0.35rem; }
+    .card p { font-size: 0.88rem; margin-bottom: 0; }
+
+    /* ── Tables ── */
+    .tab-panel table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.5rem;
+      font-size: 0.88rem;
+    }
+
+    .tab-panel th {
+      text-align: left;
+      padding: 0.7rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .tab-panel td {
+      padding: 0.6rem 1rem;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .tab-panel tr:hover td { background: var(--bg-card); }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block;
+      padding: 0.15em 0.6em;
+      border-radius: 100px;
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+
+    .badge-green { background: var(--green-subtle); color: var(--green); border: 1px solid #23863655; }
+    .badge-red { background: var(--red-subtle); color: var(--red); border: 1px solid #f8514955; }
+    .badge-blue { background: var(--accent-subtle); color: var(--accent); border: 1px solid #1f6feb55; }
+    .badge-orange { background: var(--orange-subtle); color: var(--orange); border: 1px solid #d2992255; }
+
+    /* ── Callouts ── */
+    .callout {
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem;
+      font-size: 0.9rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+
+    .callout-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+    .callout p { margin-bottom: 0; }
+
+    .callout-info { background: var(--accent-subtle); border: 1px solid #1f6feb44; }
+    .callout-success { background: var(--green-subtle); border: 1px solid #23863644; }
+    .callout-warning { background: var(--orange-subtle); border: 1px solid #d2992244; }
+
+    /* ── Diagram ── */
+    .diagram {
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+    }
+
+    .diagram pre {
+      background: none;
+      border: none;
+      padding: 0;
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+    }
+
+    /* ── Step list ── */
+    .steps { counter-reset: step; list-style: none; padding-left: 0; margin-bottom: 1.5rem; }
+
+    .steps li {
+      counter-increment: step;
+      padding: 1rem 1.25rem 1rem 3.5rem;
+      margin-bottom: 0.75rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      position: relative;
+    }
+
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      left: 1.1rem;
+      top: 1rem;
+      width: 1.6rem;
+      height: 1.6rem;
+      border-radius: 50%;
+      background: var(--accent-subtle);
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #1f6feb44;
+    }
+
+    .steps li strong { color: var(--text); display: block; margin-bottom: 0.25rem; }
+    .steps li p { margin-bottom: 0; font-size: 0.88rem; }
+
+    /* ── Section divider ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 2.5rem 0;
+    }
+
+    /* ── Flow diagram ── */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+      padding: 1.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+    }
+
+    .flow-step {
+      padding: 0.5rem 1rem;
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .flow-arrow { color: var(--text-dim); font-size: 1.2rem; }
+
+    .flow-step.highlight {
+      border-color: var(--green);
+      background: var(--green-subtle);
+      color: var(--green);
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 0.82rem;
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 1.8rem; }
+      .hero { padding: 2rem 1rem 1.5rem; }
+      .tabs-container { padding: 0 1rem; }
+      .tab-btn { padding: 0.75rem 1rem; font-size: 0.82rem; }
+      .card-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════ HERO ════════════════ -->
+<header class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm3.78 5.28a.75.75 0 00-1.06-1.06L7 7.94 5.28 6.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.06 0l4.25-4.25z"/></svg>
+      Producer-Side Composite Build
+    </div>
+    <h1>Validate library changes<br>before they break consumers</h1>
+    <p>Bring downstream Gradle consumer sources into your Bazel monorepo. Catch breaking changes at compile time with a single command.</p>
+    <div class="hero-command">
+      <span class="prompt">$</span> bazel test //dep-consumer:all
+    </div>
+  </div>
+</header>
+
+<!-- ════════════════ TABS ════════════════ -->
+<div class="tabs-container">
+  <nav class="tab-bar" role="tablist">
+    <button class="tab-btn active" role="tab" data-tab="overview">
+      <span class="tab-icon">&#9670;</span>Overview
+    </button>
+    <button class="tab-btn" role="tab" data-tab="targets">
+      <span class="tab-icon">&#9638;</span>Build Targets
+    </button>
+    <button class="tab-btn" role="tab" data-tab="tests">
+      <span class="tab-icon">&#10003;</span>Test Strategy
+    </button>
+    <button class="tab-btn" role="tab" data-tab="ci">
+      <span class="tab-icon">&#8634;</span>CI Pipeline
+    </button>
+    <button class="tab-btn" role="tab" data-tab="guide">
+      <span class="tab-icon">&#9881;</span>Developer Guide
+    </button>
+  </nav>
+
+  <!-- ──────── OVERVIEW ──────── -->
+  <section class="tab-panel active" id="overview" role="tabpanel">
+    <h2>The Problem</h2>
+    <p>When a developer modifies <code>low-level-1</code> (a Bazel library), they need confidence that downstream consumers won't break. The traditional approach requires publishing the JAR, switching to the Gradle consumer repo, and running its tests. This is slow, error-prone, and easy to skip.</p>
+
+    <h3>Traditional vs Composite Workflow</h3>
+    <div class="flow">
+      <span class="flow-step">Change producer</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-step">Publish JAR</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-step">Switch repo</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-step">Run Gradle tests</span>
+    </div>
+    <div class="flow">
+      <span class="flow-step">Change producer</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-step highlight">bazel test //dep-consumer:all</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>The Solution</h2>
+    <p>Bring the consumer's Java sources into the Bazel monorepo as a native Bazel package. The consumer's tests compile and run against the Bazel-built library directly &mdash; no Gradle, no Maven Local, no multi-step workflow.</p>
+
+    <pre><code>bazel-monorepo/
+&#9500;&#9472;&#9472; low-level-1/          # Producer library (Bazel)
+&#9500;&#9472;&#9472; top-level-1/          # Existing Bazel consumer
+&#9500;&#9472;&#9472; dep-consumer/         # Gradle consumer sources, built natively in Bazel
+&#9474;   &#9500;&#9472;&#9472; BUILD
+&#9474;   &#9500;&#9472;&#9472; src/main/java/    # Application.java
+&#9474;   &#9492;&#9472;&#9472; src/test/java/    # Integration + API contract tests
+&#9492;&#9472;&#9472; ...</code></pre>
+
+    <div class="divider"></div>
+
+    <h2>Architecture</h2>
+    <div class="diagram">
+      <pre>
+  &#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;
+  &#9474;                  bazel-monorepo                  &#9474;
+  &#9474;                                                  &#9474;
+  &#9474;  &#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;     &#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;  &#9474;
+  &#9474;  &#9474;  low-level-1 &#9474;&#9668;&#9472;&#9472;&#9472;&#9472;&#9474;    dep-consumer       &#9474;  &#9474;
+  &#9474;  &#9474;  (producer)  &#9474;     &#9474;  (consumer sources)   &#9474;  &#9474;
+  &#9474;  &#9474;              &#9474;     &#9474;                       &#9474;  &#9474;
+  &#9474;  &#9474;  LowOneMain  &#9474;     &#9474;  Application.java     &#9474;  &#9474;
+  &#9474;  &#9474;    .say()    &#9474;     &#9474;  *IntegrationTest     &#9474;  &#9474;
+  &#9474;  &#9474;              &#9474;     &#9474;  *ContractTest        &#9474;  &#9474;
+  &#9474;  &#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;     &#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;  &#9474;
+  &#9474;         &#9650;                                        &#9474;
+  &#9474;         &#9474;                                        &#9474;
+  &#9474;  &#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;                                &#9474;
+  &#9474;  &#9474;  top-level-1 &#9474;                                &#9474;
+  &#9474;  &#9474;  (existing)  &#9474;                                &#9474;
+  &#9474;  &#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;                                &#9474;
+  &#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;</pre>
+    </div>
+
+    <h3>Reverse Dependency Query</h3>
+    <p><code>bazel query</code> confirms the full dependency chain:</p>
+    <pre><code class="language-bash">$ bazel query 'rdeps(//dep-consumer/..., //low-level-1)'
+//dep-consumer:app
+//dep-consumer:dep-consumer
+//dep-consumer:dep-consumer-tests
+//dep-consumer:src/test/java/com/example/consumer/ApiContractTest
+//dep-consumer:src/test/java/com/example/consumer/LowOneMainIntegrationTest
+//low-level-1:low-level-1</code></pre>
+
+    <div class="divider"></div>
+
+    <h2>Key Benefits</h2>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon green">&#9889;</div>
+        <h3>Compile-Time Detection</h3>
+        <p>API breaks surface as compile errors, not runtime failures discovered days later.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon blue">&#9881;</div>
+        <h3>Single Command</h3>
+        <p>One <code>bazel test</code> validates both producer and consumer compatibility.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon purple">&#128270;</div>
+        <h3>bazel-diff Aware</h3>
+        <p>Target determination tools automatically include consumer tests when the producer changes.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon orange">&#9998;</div>
+        <h3>Gazelle Compatible</h3>
+        <p>BUILD files coexist with Gazelle auto-generation. No manual maintenance needed.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ──────── BUILD TARGETS ──────── -->
+  <section class="tab-panel" id="targets" role="tabpanel">
+    <h2>Build Targets</h2>
+    <p>The <code>dep-consumer/BUILD</code> file defines four targets that mirror the Gradle consumer's structure using native Bazel rules.</p>
+
+    <h3>BUILD File</h3>
+    <pre><code class="language-python">load("@contrib_rules_jvm//java:defs.bzl", "java_test_suite")
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+
+# gazelle:java_module_granularity module
+
+java_library(
+    name = "dep-consumer",
+    srcs = ["src/main/java/com/example/consumer/Application.java"],
+    visibility = ["//visibility:public"],
+    deps = ["//low-level-1"],  # keep
+)
+
+java_binary(
+    name = "app",
+    main_class = "com.example.consumer.Application",
+    runtime_deps = [":dep-consumer"],
+)
+
+java_test_suite(
+    name = "dep-consumer-tests",
+    size = "small",
+    srcs = [
+        "src/test/java/com/example/consumer/ApiContractTest.java",
+        "src/test/java/com/example/consumer/LowOneMainIntegrationTest.java",
+    ],
+    runner = "junit5",
+    deps = [
+        ":dep-consumer",  # keep
+        "//low-level-1",  # keep
+        "@maven//:org_assertj_assertj_core",
+        "@maven//:org_junit_jupiter_junit_jupiter_api",
+    ],
+    runtime_deps = [
+        "@maven//:org_junit_jupiter_junit_jupiter_engine",
+        "@maven//:org_junit_platform_junit_platform_launcher",
+        "@maven//:org_junit_platform_junit_platform_reporting",
+    ],
+)</code></pre>
+
+    <h3>Target Summary</h3>
+    <table>
+      <thead>
+        <tr><th>Target</th><th>Type</th><th>Purpose</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>:dep-consumer</code></td>
+          <td><span class="badge badge-blue">java_library</span></td>
+          <td>Consumer application code, depends on <code>//low-level-1</code></td>
+        </tr>
+        <tr>
+          <td><code>:app</code></td>
+          <td><span class="badge badge-green">java_binary</span></td>
+          <td>Runnable binary for the consumer application</td>
+        </tr>
+        <tr>
+          <td><code>:dep-consumer-tests</code></td>
+          <td><span class="badge badge-orange">java_test_suite</span></td>
+          <td>JUnit 5 integration and contract tests</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="divider"></div>
+
+    <h2>Gazelle Compatibility</h2>
+    <p>The BUILD file is designed to coexist with Gazelle (the automatic BUILD file generator).</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon blue">&#9638;</div>
+        <h3><code># gazelle:java_module_granularity module</code></h3>
+        <p>Tells Gazelle to treat the entire package as one module rather than creating per-file targets.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon green">&#9776;</div>
+        <h3>Explicit <code>srcs</code> (no <code>glob()</code>)</h3>
+        <p>Gazelle cannot merge with glob expressions. Listing source files explicitly avoids conflicts.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon orange">&#128274;</div>
+        <h3><code># keep</code> comments</h3>
+        <p>Prevents Gazelle from removing cross-package refs like <code>//low-level-1</code> it can't resolve via import analysis.</p>
+      </div>
+    </div>
+
+    <h3>Idempotence Check</h3>
+    <pre><code class="language-bash">bazel run //:gazelle
+git diff dep-consumer/BUILD  # Should be empty</code></pre>
+
+    <div class="divider"></div>
+
+    <h2>Maven Dependencies</h2>
+    <p>The consumer tests use AssertJ for fluent assertions. These were added to <code>MODULE.bazel</code>:</p>
+    <pre><code class="language-python">"org.assertj:assertj-core:3.25.3",
+"net.bytebuddy:byte-buddy:1.14.11",  # transitive dep of AssertJ</code></pre>
+
+    <p>The root BUILD includes a Gazelle resolve directive:</p>
+    <pre><code class="language-python"># gazelle:resolve java org.assertj.core.api @maven//:org_assertj_assertj_core</code></pre>
+  </section>
+
+  <!-- ──────── TEST STRATEGY ──────── -->
+  <section class="tab-panel" id="tests" role="tabpanel">
+    <h2>Test Strategy</h2>
+    <p>The dep-consumer package includes two categories of tests that detect breaking changes at different levels.</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon green">&#9889;</div>
+        <h3>Integration Tests</h3>
+        <p><code>LowOneMainIntegrationTest</code> &mdash; exercises runtime behavior through the consumer's perspective.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon purple">&#128270;</div>
+        <h3>API Contract Tests</h3>
+        <p><code>ApiContractTest</code> &mdash; reflection-based verification of exact method signatures.</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <h3>Integration Tests</h3>
+    <h4>What they catch</h4>
+    <ul>
+      <li>Method renames or removals <span class="badge badge-red">compile-time failure</span></li>
+      <li>Output format changes <span class="badge badge-orange">assertion failure</span></li>
+      <li>Behavioral regressions <span class="badge badge-orange">assertion failure</span></li>
+    </ul>
+
+    <pre><code class="language-java">@Test
+@DisplayName("say() should print 'Low-level-1'")
+void sayShouldPrintExpectedOutput() {
+    LowOneMain.say();
+    assertThat(outContent.toString().trim()).isEqualTo("Low-level-1");
+}
+
+@Test
+@DisplayName("say() should be callable multiple times")
+void sayShouldBeCallableMultipleTimes() {
+    LowOneMain.say();
+    LowOneMain.say();
+    String output = outContent.toString();
+    assertThat(output).contains("Low-level-1");
+    assertThat(output.trim().split("\n")).hasSize(2);
+}</code></pre>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">&#128161;</span>
+      <p>If <code>say()</code> is renamed to <code>speak()</code>, the test fails at <strong>compile time</strong> &mdash; the strongest possible signal.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <h3>API Contract Tests</h3>
+    <h4>What they catch</h4>
+    <ul>
+      <li>Method signature changes (visibility, return type, parameters)</li>
+      <li>Package relocations</li>
+      <li>Access modifier changes</li>
+    </ul>
+
+    <pre><code class="language-java">@Test
+@DisplayName("LowOneMain should have public static void say() method")
+void verifySayMethodSignature() throws NoSuchMethodException {
+    Method method = LowOneMain.class.getMethod("say");
+
+    assertThat(method.getReturnType()).isEqualTo(void.class);
+    assertThat(Modifier.isStatic(method.getModifiers())).isTrue();
+    assertThat(Modifier.isPublic(method.getModifiers())).isTrue();
+    assertThat(method.getParameterCount()).isZero();
+}
+
+@Test
+@DisplayName("LowOneMain class should be in com.acme.arc.dep.test package")
+void verifyClassPackage() {
+    assertThat(LowOneMain.class.getPackageName())
+            .isEqualTo("com.acme.arc.dep.test");
+}</code></pre>
+
+    <div class="divider"></div>
+
+    <h2>Breaking Change Detection Matrix</h2>
+    <table>
+      <thead>
+        <tr><th>Change Type</th><th>Integration Tests</th><th>Contract Tests</th><th>Detection Phase</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Method renamed</td>
+          <td><span class="badge badge-red">Compile error</span></td>
+          <td><code>NoSuchMethodException</code></td>
+          <td><span class="badge badge-red">Compile time</span></td>
+        </tr>
+        <tr>
+          <td>Method removed</td>
+          <td><span class="badge badge-red">Compile error</span></td>
+          <td><code>NoSuchMethodException</code></td>
+          <td><span class="badge badge-red">Compile time</span></td>
+        </tr>
+        <tr>
+          <td>Output changed</td>
+          <td><span class="badge badge-orange">Assertion failure</span></td>
+          <td><span class="badge badge-green">Pass</span></td>
+          <td><span class="badge badge-orange">Runtime</span></td>
+        </tr>
+        <tr>
+          <td>Visibility reduced</td>
+          <td><span class="badge badge-red">Compile error</span></td>
+          <td><span class="badge badge-orange">Assertion failure</span></td>
+          <td><span class="badge badge-red">Compile time</span></td>
+        </tr>
+        <tr>
+          <td>Return type changed</td>
+          <td><span class="badge badge-red">Compile error</span></td>
+          <td><span class="badge badge-orange">Assertion failure</span></td>
+          <td><span class="badge badge-red">Compile time</span></td>
+        </tr>
+        <tr>
+          <td>Parameter added</td>
+          <td><span class="badge badge-red">Compile error</span></td>
+          <td><span class="badge badge-orange">Assertion failure</span></td>
+          <td><span class="badge badge-red">Compile time</span></td>
+        </tr>
+        <tr>
+          <td>Package moved</td>
+          <td><span class="badge badge-red">Compile error</span></td>
+          <td><span class="badge badge-orange">Assertion failure</span></td>
+          <td><span class="badge badge-red">Compile time</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="divider"></div>
+
+    <h2>Running Tests</h2>
+    <pre><code class="language-bash"># Run all dep-consumer tests
+bazel test //dep-consumer:all --test_output=all
+
+# Run specific test
+bazel test //dep-consumer:src/test/java/com/example/consumer/ApiContractTest
+
+# Run with verbose output
+bazel test //dep-consumer:all --test_output=all --test_verbose_timeout_warnings</code></pre>
+  </section>
+
+  <!-- ──────── CI PIPELINE ──────── -->
+  <section class="tab-panel" id="ci" role="tabpanel">
+    <h2>CI Pipeline</h2>
+    <p>The <code>.github/workflows/consumer-integration.yml</code> workflow runs two jobs to validate producer-consumer compatibility on every push and pull request.</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon green">&#10003;</div>
+        <h3>Job 1: happy-path</h3>
+        <p>Validates that the current state builds and all consumer tests pass.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon red">&#10007;</div>
+        <h3>Job 2: breaking-change</h3>
+        <p>Proves the validation works by introducing a breaking change and verifying it's detected.</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <h3>Job 1: happy-path</h3>
+    <pre><code class="language-yaml">steps:
+  - uses: actions/checkout@v4
+
+  - name: Setup Java
+    uses: actions/setup-java@v4
+    with:
+      java-version: "21"
+      distribution: "temurin"
+
+  - name: Build all targets
+    run: bazel build //...
+
+  - name: Test dep-consumer
+    run: bazel test //dep-consumer:all --test_output=all
+
+  - name: Query reverse dependencies
+    run: bazel query 'rdeps(//dep-consumer/..., //low-level-1)'</code></pre>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">&#128712;</span>
+      <p>The <code>rdeps</code> query is informational &mdash; it documents which consumer targets depend on <code>low-level-1</code> in the CI log.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <h3>Job 2: breaking-change</h3>
+    <pre><code class="language-yaml">steps:
+  - uses: actions/checkout@v4
+
+  - name: Setup Java
+    uses: actions/setup-java@v4
+    with:
+      java-version: "21"
+      distribution: "temurin"
+
+  - name: Verify happy path first
+    run: bazel test //dep-consumer:all --test_output=errors
+
+  - name: Apply breaking change — rename say() to speak()
+    run: |
+      sed -i 's/public static void say()/public static void speak()/' \
+        low-level-1/src/main/java/com/acme/arc/dep/test/LowOneMain.java
+      sed -i 's/say();/speak();/' \
+        low-level-1/src/main/java/com/acme/arc/dep/test/LowOneMain.java
+
+  - name: Verify dep-consumer detects breaking change
+    run: |
+      if bazel test //dep-consumer:all 2>&amp;1; then
+        echo "ERROR: Expected compile failure but tests passed!"
+        exit 1
+      else
+        echo "SUCCESS: Breaking change correctly detected."
+      fi</code></pre>
+
+    <ol class="steps">
+      <li><strong>Confirms the baseline is green</strong><p>Runs the happy path first to ensure the test infrastructure works.</p></li>
+      <li><strong>Renames <code>say()</code> to <code>speak()</code></strong><p>Applies a breaking API change to the producer library via <code>sed</code>.</p></li>
+      <li><strong>Expects consumer tests to fail</strong><p>If tests unexpectedly pass, the CI job itself fails &mdash; alerting that the validation mechanism is broken.</p></li>
+    </ol>
+
+    <div class="divider"></div>
+
+    <h2>Integration with Existing CI</h2>
+    <p>The monorepo already has a <code>ci.yml</code> workflow that runs <code>bazel test //...</code>. Since <code>//dep-consumer:all</code> is part of <code>//...</code>, the consumer tests also run in the main CI pipeline. The <code>consumer-integration.yml</code> adds the breaking-change validation as an additional safety net.</p>
+
+    <h3>bazel-diff Integration</h3>
+    <p>When using bazel-diff for target determination, changes to <code>low-level-1</code> automatically include <code>//dep-consumer:dep-consumer-tests</code> as an impacted target:</p>
+
+    <pre><code>//low-level-1:low-level-1
+  └── //dep-consumer:dep-consumer
+        └── //dep-consumer:dep-consumer-tests</code></pre>
+
+    <div class="callout callout-success">
+      <span class="callout-icon">&#10003;</span>
+      <p>CI systems using bazel-diff will automatically run consumer tests when the producer changes. No additional configuration needed.</p>
+    </div>
+  </section>
+
+  <!-- ──────── DEVELOPER GUIDE ──────── -->
+  <section class="tab-panel" id="guide" role="tabpanel">
+    <h2>Developer Guide</h2>
+    <p>Day-to-day workflow for using producer-side composite validation.</p>
+
+    <h3>Quick Start</h3>
+    <div class="callout callout-success">
+      <span class="callout-icon">&#9889;</span>
+      <div>
+        <p><strong>After modifying <code>low-level-1</code>, run one command:</strong></p>
+        <pre><code class="language-bash">bazel test //dep-consumer:all --test_output=all</code></pre>
+        <p>If it passes, your changes are safe for the downstream consumer.</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>Common Workflows</h2>
+
+    <h3>Modifying low-level-1's public API</h3>
+    <ol class="steps">
+      <li><strong>Make your changes</strong><p>Edit files in <code>low-level-1/src/main/java/</code></p></li>
+      <li><strong>Run the consumer validation</strong><p><code>bazel test //dep-consumer:all --test_output=all</code></p></li>
+      <li><strong>If tests fail, you have a breaking change</strong>
+        <p>Either adjust your API for backward compatibility, update consumer tests to match, or coordinate with the consumer team.</p>
+      </li>
+    </ol>
+
+    <h3>Adding a new consumer test</h3>
+    <ol class="steps">
+      <li><strong>Add the test file</strong><p>Place it in <code>dep-consumer/src/test/java/com/example/consumer/</code></p></li>
+      <li><strong>Update the BUILD file</strong>
+        <p>Add the source file to the <code>srcs</code> list in <code>dep-consumer/BUILD</code>:</p>
+        <pre><code class="language-python">java_test_suite(
+    name = "dep-consumer-tests",
+    srcs = [
+        "src/test/java/com/example/consumer/ApiContractTest.java",
+        "src/test/java/com/example/consumer/LowOneMainIntegrationTest.java",
+        "src/test/java/com/example/consumer/YourNewTest.java",  # add here
+    ],
+    ...
+)</code></pre>
+      </li>
+      <li><strong>Verify Gazelle compatibility</strong>
+        <pre><code class="language-bash">bazel run //:gazelle
+git diff dep-consumer/BUILD  # Should produce no changes</code></pre>
+      </li>
+    </ol>
+
+    <h3>Syncing consumer sources from the Gradle repo</h3>
+    <pre><code class="language-bash"># Copy updated files from the Gradle repo
+cp ../dep-consumer/src/main/java/com/example/consumer/*.java \
+   dep-consumer/src/main/java/com/example/consumer/
+cp ../dep-consumer/src/test/java/com/example/consumer/*.java \
+   dep-consumer/src/test/java/com/example/consumer/
+
+# Update BUILD if new source files were added, then verify
+bazel test //dep-consumer:all --test_output=all</code></pre>
+
+    <h3>Querying the dependency graph</h3>
+    <pre><code class="language-bash"># Consumer targets depending on low-level-1
+bazel query 'rdeps(//dep-consumer/..., //low-level-1)'
+
+# All targets impacted by a low-level-1 change
+bazel query 'rdeps(//..., //low-level-1)'</code></pre>
+
+    <div class="divider"></div>
+
+    <h2>Troubleshooting</h2>
+
+    <div class="callout callout-warning">
+      <span class="callout-icon">&#9888;</span>
+      <div>
+        <p><strong>"Unsupported class file major version 69"</strong></p>
+        <p>Benign warning from byte-buddy (AssertJ's transitive dependency) when running on Java 25+. Tests still pass. No action needed.</p>
+      </div>
+    </div>
+
+    <h3>Gazelle removes my deps</h3>
+    <p>Ensure cross-package dependencies have the <code># keep</code> comment:</p>
+    <pre><code class="language-python">deps = [
+    "//low-level-1",  # keep
+]</code></pre>
+    <p>Without <code># keep</code>, Gazelle may remove deps it can't resolve through import analysis.</p>
+
+    <h3>Adding a new maven dependency</h3>
+    <ol class="steps">
+      <li><strong>Add the artifact</strong><p>Add it to <code>MODULE.bazel</code>'s <code>maven.install</code> block.</p></li>
+      <li><strong>Re-pin dependencies</strong><pre><code class="language-bash">bazel run @maven//:pin</code></pre></li>
+      <li><strong>Add Gazelle resolve directive</strong>
+        <p>If needed, add to the root <code>BUILD</code>:</p>
+        <pre><code class="language-python"># gazelle:resolve java &lt;package&gt; @maven//&lt;target&gt;</code></pre>
+      </li>
+    </ol>
+
+    <div class="divider"></div>
+
+    <h2>How It Works</h2>
+    <p>The consumer's <code>dep-consumer/BUILD</code> declares a dependency on <code>//low-level-1</code>, which means Bazel compiles the consumer code directly against the library's compiled classes. Any API incompatibility surfaces as a compile error immediately.</p>
+
+    <div class="flow">
+      <span class="flow-step">Change producer</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-step highlight">bazel test //dep-consumer:all</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-step">Compile-time feedback</span>
+    </div>
+  </section>
+</div>
+
+<!-- ════════════════ FOOTER ════════════════ -->
+<footer>
+  Built with Bazel 9.0 &middot; Java 21 &middot; JUnit 5 &middot;
+  <a href="https://github.com/pravasna30-dev/bazel-monorepo">View on GitHub</a>
+</footer>
+
+<!-- ════════════════ SCRIPTS ════════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // Syntax highlighting
+  hljs.highlightAll();
+</script>
+</body>
+</html>
