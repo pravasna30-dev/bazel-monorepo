@@ -1,0 +1,4 @@
+title: Bazel Composite Monorepo
+description: Producer-side composite build validation with Bazel
+theme: jekyll-theme-cayman
+baseurl: "/bazel-monorepo"
